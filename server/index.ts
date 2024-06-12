@@ -1,8 +1,15 @@
-import express, { Router, type Express, type Request, type Response } from "express";
+import express, {
+  Router,
+  type Express,
+  type Request,
+  type Response,
+} from "express";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
-import userRoutes from "./routes/user.route.js";
-import jobRoutes from "./routes/job.route.js";
+import credentialRoutes from "./routes/credentials.routes.ts";
+import jobRoutes from "./routes/job.routes.ts";
+import authRoutes from "./routes/auth.routes.ts";
+import videoRoutes from "./routes/video.routes.ts";
 
 dotenv.config();
 
@@ -10,10 +17,10 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-app.use(userRoutes);
-app.use(jobRoutes);
-
-
+app.use("/api/auth", authRoutes);
+app.use("/api/credentials", credentialRoutes);
+app.use("/api/job", jobRoutes);
+app.use("/api/video", videoRoutes);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

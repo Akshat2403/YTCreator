@@ -1,4 +1,14 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
+#database
+db*
+docker-compose.yml
+migrations*
+
+# assets
+*.mkv
+*.mp4
+*.mov
+*.avi
 
 # Logs
 
