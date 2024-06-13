@@ -31,7 +31,7 @@ export function decryptData(
     secret_key: string,
     secret_iv: string,
     encryption_method: string
-): string {
+): object {
     const key = crypto
         .createHash('sha512')
         .update(secret_key)
@@ -46,8 +46,14 @@ export function decryptData(
     const buff = Buffer.from(encryptedData, 'base64');
     const decipher = crypto.createDecipheriv(encryption_method, key, encryptionIV);
 
-    return (
-        decipher.update(buff.toString('utf8'), 'hex', 'utf8') +
-        decipher.final('utf8')
-    ); // Decrypts data and converts to utf8
+    const decryptedData = decipher.update(buff.toString('utf8'), 'hex', 'utf8') + decipher.final('utf8');
+
+    try {
+        // Parse the decrypted string into JSON
+        const jsonData = JSON.parse(decryptedData);
+        return jsonData;
+    } catch (error) {
+        // If parsing fails, throw an error
+        throw new Error('Failed to parse decrypted data as JSON');
+    }
 }

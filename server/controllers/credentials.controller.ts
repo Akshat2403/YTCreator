@@ -30,7 +30,7 @@ export const addCredentials = async (
 
     const newCredentials = await prisma.credentials.create({
       data: {
-        author: {
+        User: {
           connect: { id: req.body.author_id },
         },
         key: credEncryptedData,
@@ -70,7 +70,9 @@ export const updateCredentials = async (
 
     const credential = await prisma.credentials.findFirst({
       where: {
-        authorId: req.body.author_id,
+        User: {
+          id: req.body.author_id,
+        },
       },
     });
 
@@ -84,7 +86,6 @@ export const updateCredentials = async (
       },
       data: {
         key: credEncryptedData,
-        updatedAt: new Date(),
       },
     });
 

@@ -10,6 +10,7 @@ import credentialRoutes from "./routes/credentials.routes.ts";
 import jobRoutes from "./routes/job.routes.ts";
 import authRoutes from "./routes/auth.routes.ts";
 import videoRoutes from "./routes/video.routes.ts";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/credentials", credentialRoutes);
 app.use("/api/job", jobRoutes);

@@ -1,11 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
-import type { Request,Response,NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import createError from '../utils/error.ts';
 const prisma = new PrismaClient();
 
-export const login = async (req:Request, res:Response, next:NextFunction) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -41,7 +41,7 @@ export const login = async (req:Request, res:Response, next:NextFunction) => {
     }
 };
 
-export const register = async (req:Request, res:Response, next:NextFunction) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
     const salt = bcrypt.genSaltSync(12);
     const hash = bcrypt.hashSync(req.body.password, salt);
     try {
@@ -53,7 +53,8 @@ export const register = async (req:Request, res:Response, next:NextFunction) => 
         if (userExist) {
             return next(createError(409, 'User already exists'));
         }
-        if (!(req.body.roles in ["creator", "editor"])) {
+        if ((req.body.roles in ["creator", "editor"])) {
+            console.log(req.body.roles);
             return next(createError(400, 'Invalid Role'));
         }
         const newUser = await prisma.user.create({
@@ -68,6 +69,6 @@ export const register = async (req:Request, res:Response, next:NextFunction) => 
         next(err);
     }
 };
-export const logout = (req:Request, res:Response, next:NextFunction) => {
+export const logout = (req: Request, res: Response, next: NextFunction) => {
     res.clearCookie('access_token').end();
 };
