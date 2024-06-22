@@ -56,10 +56,10 @@ model Video {
 model Job {
   id        String   @id @default(cuid())
   author    User     @relation("JobCreator", fields: [authorId], references: [id])
-  authorId  String   @unique
+  authorId  String   
   title     String
   editor    User     @relation("JobEditor", fields: [editorId], references: [id])
-  editorId  String   @unique
+  editorId  String   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
