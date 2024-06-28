@@ -1,0 +1,18 @@
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #212121;
+    border-bottom: 1px solid #000000;
+    padding: 1.5rem 2.5rem;
+}
+
+.rightNavBar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4rem;
+    color: white;
+    background-color: transparent;
+}
+
