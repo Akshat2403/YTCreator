@@ -8,7 +8,8 @@ const prisma = new PrismaClient();
 export const createJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { uid } = req.params;
-        const { editorId, ...details } = req.body;
+        console.log(uid);
+        const { editorId, title, status, additionalComments, ...details } = req.body;
         const job = await prisma.job.create({
             data: {
                 author: {
@@ -21,6 +22,9 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
                         id: editorId
                     }
                 },
+                title,
+                status,
+                additionalComments,
                 ...details,
             },
         });
@@ -29,6 +33,20 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
         next(error);
     }
 }
+
+export const getAllEditors = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const editors = await prisma.user.findMany({
+            where: {
+                roles: "editor"
+            },
+        });
+        res.status(201).json(editors);
+    } catch (error) {
+        next(error);
+    }
+}
+
 
 export const readJob = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
@@ -49,14 +67,21 @@ export const readJob = async (req: Request, res: Response, next: NextFunction) =
 
 export const updateJob = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const { title, ...details } = req.body;
+    const { title, editorId, additionalComments, status, ...details } = req.body;
     try {
         const job = await prisma.job.update({
             where: {
                 id
             },
             data: {
+                editor: {
+                    connect: {
+                        id: editorId
+                    }
+                },
                 title,
+                status,
+                additionalComments,
                 ...details,
             },
         });
@@ -89,7 +114,22 @@ export const getAllJobs = async (req: Request, res: Response, next: NextFunction
                 id: uid,
             },
             include: {
-                jobs: true,
+                jobs: {
+                    select: {
+                        id: true,
+                        title: true,
+                        editorId: true,
+                        editor: {
+                            select: {
+                                name: true,
+                            }
+                        },
+                        createdAt: true,
+                        updatedAt: true,
+                        additionalComments: true,
+                        status: true,
+                    }
+                },
                 editorJobs: true,
             },
         });

@@ -54,12 +54,14 @@ model Video {
 }
 
 model Job {
-  id        String   @id @default(cuid())
-  author    User     @relation("JobCreator", fields: [authorId], references: [id])
-  authorId  String   
-  title     String
-  editor    User     @relation("JobEditor", fields: [editorId], references: [id])
-  editorId  String   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  author             User     @relation("JobCreator", fields: [authorId], references: [id])
+  authorId           String
+  title              String
+  editor             User     @relation("JobEditor", fields: [editorId], references: [id])
+  editorId           String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  status             Boolean  @default(false)
+  additionalComments String?
 }
