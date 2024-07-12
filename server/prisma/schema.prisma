@@ -13,18 +13,34 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  email         String       @unique
-  name          String?
-  password      String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  roles         String
-  credentials   Credentials? @relation(fields: [credentialsID], references: [id])
-  credentialsID String?      @unique
-  videos        Video[]
-  jobs          Job[]        @relation("JobCreator")
-  editorJobs    Job[]        @relation("JobEditor")
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  Creator   Creator?
+  Editor    Editor?
+}
+
+model Creator {
+  id            String      @id @default(cuid())
+  user          User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String?     @unique
+  credentials   Credentials @relation(fields: [credentialsID], references: [id])
+  credentialsID String      @unique
+
+  videos  Video[]
+  jobs    Job[]
+  editors Editor[]
+}
+
+model Editor {
+  id      String    @id @default(cuid())
+  user    User?     @relation(fields: [userId], references: [id])
+  userId  String?   @unique
+  creator Creator[]
+  Job     Job[]
 }
 
 model Credentials {
@@ -32,13 +48,11 @@ model Credentials {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   key       String //2way normal->encrypt->decrypt
-  User      User?
+  Creator   Creator?
 }
 
 model Video {
   id            String   @id @default(cuid())
-  author        User     @relation(fields: [authorId], references: [id])
-  authorId      String   @unique
   title         String
   description   String
   url           String
@@ -51,15 +65,17 @@ model Video {
   privacyStatus String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  Creator       Creator  @relation(fields: [creatorId], references: [id])
+  creatorId     String
 }
 
 model Job {
   id        String   @id @default(cuid())
-  author    User     @relation("JobCreator", fields: [authorId], references: [id])
-  authorId  String   
   title     String
-  editor    User     @relation("JobEditor", fields: [editorId], references: [id])
-  editorId  String   
+  editor    Editor   @relation(fields: [editorId], references: [id])
+  editorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Creator   Creator  @relation(fields: [creatorId], references: [id])
+  creatorId String
 }
