@@ -2,6 +2,7 @@
 import Image from "next/image";
 import logo from "@/public/Group.svg";
 import "./NavBar.css";
+import Link from "next/link";
 
 const NavBar = () => {
     return (
@@ -10,9 +11,9 @@ const NavBar = () => {
                 <Image src={logo} alt="logo" />
             </div>
             <div className="rightNavBar">
-                <div>Dashboard</div>
-                <div>Jobs</div>
-                <div>Login</div>
+                <Link href="/"><div>Dashboard</div></Link>
+                <Link href="/jobs"><div>Jobs</div></Link>
+                <Link href="/"><div>Login</div></Link>
             </div>
         </div>
     )

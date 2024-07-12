@@ -78,4 +78,6 @@ model Job {
   updatedAt DateTime @updatedAt
   Creator   Creator  @relation(fields: [creatorId], references: [id])
   creatorId String
+  status             Boolean  @default(false)
+  additionalComments String?
 }
