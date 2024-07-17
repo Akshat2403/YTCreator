@@ -1,30 +1,37 @@
-import * as jwt from 'jsonwebtoken';
-import createError from '../utils/error.js';
-import type { Request, Response, NextFunction } from 'express';
+import * as jwt from "jsonwebtoken";
+import createError from "../utils/error.js";
+import type { Request, Response, NextFunction } from "express";
 
 interface CustomRequest extends Request {
-    user?: any;
+  user?: any;
 }
 
-export const verifyToken = (req:CustomRequest, res:Response, next:NextFunction, userCheck:userCheck) => {
-    const token = req.cookies.access_token;
-    if (!token) {
-        return next(createError(401, 'You are not Authenticated'));
+export const verifyUser = (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.cookies.access_token;
+  if (!token) {
+    return next(createError(401, "You are not Authenticated"));
+  }
+  jwt.verify(
+    token,
+    process.env.JWT_SECRETKEY || "default-key",
+    (err: Error | null, user: any) => {
+      if (err) {
+        return next(createError(403, "Token is not valid"));
+      }
+      req.user = user;
+      next();
     }
-    jwt.verify(token, process.env.JWT_SECRETKEY||"default-key", (err:Error|null, user:any) => {
-        if (err) {
-            return next(createError(403, 'Token is not valid'));
-        }
-        req.user = user;
-        userCheck();
-        next();
-    });
+  );
 };
-type userCheck = () => void;
-export const verifyUser = (req:CustomRequest, res:Response, next:NextFunction) => {
-    verifyToken(req, res, next, () => {
-        if (req.user.id != req.params.uid) {
-            return next(createError(403, 'You are not authorized'));
-        }
-    });
-};
+// type userCheck = () => void;
+// export const verifyUser = (req:CustomRequest, res:Response, next:NextFunction) => {
+//     verifyToken(req, res, next, () => {
+//         if (req.user.id != req.params.uid) {
+//             return next(createError(403, 'You are not authorized'));
+//         }
+//     });
+// };

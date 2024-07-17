@@ -27,8 +27,8 @@ model Creator {
   id            String      @id @default(cuid())
   user          User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String?     @unique
-  credentials   Credentials @relation(fields: [credentialsID], references: [id])
-  credentialsID String      @unique
+  credentials   Credentials? @relation(fields: [credentialsID], references: [id])
+  credentialsID String?      @unique
 
   videos  Video[]
   jobs    Job[]
