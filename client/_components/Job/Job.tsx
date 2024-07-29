@@ -8,8 +8,6 @@ import sortIcon from "../../public/icons8-sort-24.png";
 import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
-import UpdateJob from "./UpdateJob";
-import { getSession } from "@/lib/auth";
 
 type Job = {
   id: string;
@@ -27,8 +25,6 @@ type Job = {
 };
 
 const JobTable: React.FC = async () => {
-  const session = await getSession();
-  console.log(session);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [sortKey, setSortKey] = useState<keyof Job>("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
