@@ -7,9 +7,9 @@ import upload from "../utils/upload.ts";
 import { verifyUser } from "../middlewares/verification.ts";
 
 const router = Router();
-router.post("/auth/:uid", verifyUser, youtubeAuth);
+router.post("/auth", verifyUser, youtubeAuth);
 router.post(
-  "/upload/:uid",
+  "/upload",
   verifyUser,
   upload.single("video"),
   uploadyoutubeVideo

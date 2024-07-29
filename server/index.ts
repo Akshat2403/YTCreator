@@ -11,19 +11,23 @@ import jobRoutes from "./routes/job.routes.ts";
 import authRoutes from "./routes/auth.routes.ts";
 import videoRoutes from "./routes/video.routes.ts";
 import cookieParser from "cookie-parser";
-import cors from 'cors';
-
+import cors from "cors";
 dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
-// const cors = require('cors');
 
 app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept",
+  })
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/credentials", credentialRoutes);
 app.use("/api/job", jobRoutes);

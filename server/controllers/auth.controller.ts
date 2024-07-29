@@ -126,3 +126,31 @@ export const register: RequestHandler = async (
 export const logout = (req: Request, res: Response, next: NextFunction) => {
   res.clearCookie("access_token").end();
 };
+export const addEditor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { email: req.body.email },
+      include: { Editor: true },
+    });
+    if (!user) {
+      next(createError(404, "User not found"));
+    }
+    if (!user?.Editor) {
+      next(createError(404, "Editor not found"));
+    }
+    const editor = await prisma.editor.update({
+      where: { id: user.Editor.id },
+      data: {
+        creator:{connect:{id:req.body.creatorId}}
+      },
+    });
+  
+    res.status(201).json({ status: "success", data: editor });
+  } catch (err) {
+    next(err);
+  }
+};

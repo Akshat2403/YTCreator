@@ -12,12 +12,13 @@ export const verifyUser = (
   next: NextFunction
 ) => {
   const token = req.cookies.access_token;
+  console.log(req.cookies);
   if (!token) {
     return next(createError(401, "You are not Authenticated"));
   }
   jwt.verify(
     token,
-    process.env.JWT_SECRETKEY || "default-key",
+    process.env.JWT_SECRETKEY || "default-secret-key",
     (err: Error | null, user: any) => {
       if (err) {
         return next(createError(403, "Token is not valid"));

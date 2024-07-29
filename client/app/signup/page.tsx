@@ -1,13 +1,12 @@
 "use client";
 import { FormEventHandler, useState } from "react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
 // import { useRouter } from "next/router";
-import { useRouter } from 'next/navigation'
 import toast from "react-hot-toast";
 export default function SignUpPage() {
   const router = useRouter();
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("creator");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
