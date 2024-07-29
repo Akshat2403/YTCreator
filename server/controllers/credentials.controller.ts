@@ -31,7 +31,7 @@ export const addCredentials = async (
     const newCredentials = await prisma.credentials.create({
       data: {
         User: {
-          connect: { id: req.body.author_id },
+          connect: { id: req.params.uid },
         },
         key: credEncryptedData,
       },

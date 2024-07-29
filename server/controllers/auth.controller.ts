@@ -5,6 +5,25 @@ import type { Request, Response, NextFunction } from "express";
 import createError from "../utils/error.ts";
 const prisma = new PrismaClient();
 
+export const profile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        console.log(id);
+        const user = await prisma.user.findUnique({
+            where: {
+                id: id,
+            },
+            include: {
+                credentials: true,
+            }
+        });
+        console.log(user?.name);
+        res.json(user);
+    } catch (error) {
+
+    }
+}
+
 export const login = async (
   req: Request,
   res: Response,

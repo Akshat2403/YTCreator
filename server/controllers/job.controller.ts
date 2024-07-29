@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export const createJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { uid } = req.params;
-        console.log(uid);
+        console.log(req.body);
         const { editorId, title, status, additionalComments, ...details } = req.body;
         const job = await prisma.job.create({
             data: {
