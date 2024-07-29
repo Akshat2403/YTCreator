@@ -8,8 +8,7 @@ import sortIcon from "../../public/icons8-sort-24.png";
 import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
-import UpdateJob from "./UpdateJob";
-import { getSession } from "@/lib/auth";
+// import UpdateJob from "./UpdateJob";
 
 type Job = {
   id: string;

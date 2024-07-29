@@ -1,27 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import createError from "../utils/error.ts";
 const prisma = new PrismaClient();
 
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { id } = req.params;
-        console.log(id);
-        const user = await prisma.user.findUnique({
-            where: {
-                id: id,
-            },
-            include: {
-                credentials: true,
-            }
-        });
-        console.log(user?.name);
-        res.json(user);
-    } catch (error) {
+  try {
+    const { id } = req.params;
+    console.log("id");
+    const user = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        Creator: {
+          include: {
+            credentials: true,
+          }
+        },
+        Editor: true,
+      },
+    });
+    // console.log(user?.name);
+    res.json(user);
+  } catch (error) {
 
-    }
+  }
 }
 
 export const login = async (
@@ -65,7 +70,7 @@ export const login = async (
   }
 };
 
-export const register = async (
+export const register: RequestHandler = async (
   req: Request,
   res: Response,
   next: NextFunction

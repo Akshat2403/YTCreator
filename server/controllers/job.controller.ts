@@ -1,7 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import type { NextFunction, Request, Response } from "express";
-import { connect } from "http2";
-import { idText } from "typescript";
 const prisma = new PrismaClient();
 
 

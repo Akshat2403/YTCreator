@@ -28,12 +28,31 @@ export const addCredentials = async (
       return res.status(400).send("Invalid data.");
     }
 
+    // const newCredentials = await prisma.credentials.create({
+    //   data: {
+    //     User: {
+    //       connect: { id: req.params.uid },
+    //     },
+    //     key: credEncryptedData,
+    //   },
+    // });
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.params.uid,
+      },
+      include: {
+        Creator: true,
+      },
+    });
+
     const newCredentials = await prisma.credentials.create({
       data: {
-        User: {
-          connect: { id: req.params.uid },
-        },
         key: credEncryptedData,
+        Creator: {
+          connect: {
+            id: user?.Creator?.id,
+          }
+        },
       },
     });
     res.status(201).json("Credentials added successfully.");
@@ -68,24 +87,54 @@ export const updateCredentials = async (
       return res.status(400).send("Invalid data.");
     }
 
-    const credential = await prisma.credentials.findFirst({
+    // const credential = await prisma.credentials.findFirst({
+    //   where: {
+    //     User: {
+    //       id: req.body.author_id,
+    //     },
+    //   },
+    // });
+
+    // if (!credential) {
+    //   return res.status(404).send("Credential not found.");
+    // }
+
+    const user = await prisma.user.findUnique({
       where: {
-        User: {
-          id: req.body.author_id,
-        },
+        id: req.params.uid,
+      },
+      include: {
+        Creator: true,
       },
     });
+
+    const credential = await prisma.credentials.findFirst({
+      where: {
+        Creator: {
+          id: user?.Creator?.id,
+        },
+      },
+    })
 
     if (!credential) {
       return res.status(404).send("Credential not found.");
     }
+
+    // const updatedCredentials = await prisma.credentials.update({
+    //   where: {
+    //     id: credential.id,
+    //   },
+    //   data: {
+    //     key: credEncryptedData,
+    //   },
+    // });
 
     const updatedCredentials = await prisma.credentials.update({
       where: {
         id: credential.id,
       },
       data: {
-        key: credEncryptedData,
+        key: credEncryptedData,  
       },
     });
 

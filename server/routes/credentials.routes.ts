@@ -13,5 +13,4 @@ type RequestHandler = (req: Request, res: Response, next: NextFunction) => void;
 router.put("/updateCredentials/:uid", upload.single('file'), updateCredentials as RequestHandler);
 router.post("/addCredentials/:uid", upload.single('file'), addCredentials as RequestHandler);
 
-
 export default router;

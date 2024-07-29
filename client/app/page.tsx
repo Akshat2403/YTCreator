@@ -3,7 +3,7 @@ import NewJob from "@/_components/Job/NewJob";
 
 export default function Home() {
   return (
-    <div>
+    <div className="bg-transparent">
       <NavBar />
     </div>
   );
