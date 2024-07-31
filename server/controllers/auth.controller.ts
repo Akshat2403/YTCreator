@@ -126,6 +126,22 @@ export const register: RequestHandler = async (
 export const logout = (req: Request, res: Response, next: NextFunction) => {
   res.clearCookie("access_token").end();
 };
+
+export const getAllEdtiors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const editors = await prisma.editor.findMany({
+      include: { user: true },
+    });
+    res.status(200).json({ status: "success", data: editors });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export const addEditor = async (
   req: Request,
   res: Response,
@@ -145,7 +161,7 @@ export const addEditor = async (
     const editor = await prisma.editor.update({
       where: { id: user.Editor.id },
       data: {
-        creator:{connect:{id:req.body.creatorId}}
+        creator:{connect:{id:req.user.id}}
       },
     });
   
