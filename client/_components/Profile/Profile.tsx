@@ -94,16 +94,17 @@ const Profile: React.FC = () => {
 
         const formData = new FormData();
         formData.append('email', selectedEditor);
+        console.log("email:",selectedEditor);
         const url = `http://localhost:5000/api/auth/addEditor`;
         const method = 'POST';
         try {
             const response = await axios({
                 method,
                 url,
-                data: formData,
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
+                data: {email:selectedEditor},
+                // headers: {
+                //     'Content-Type': 'multipart/form-data',
+                // },
                 withCredentials: true,
             });
             console.log('Editor Connected successfully:', response.data);
@@ -128,6 +129,7 @@ const Profile: React.FC = () => {
                     <div className="flex gap-4">
                         <form onSubmit={handleEditorConnect} className="flex flex-col gap-4">
                             <select className="p-2 border rounded" onChange={(e) => setSelectedEditor(e.target.value)}>
+                                <option value="">Select Editor</option>
                                 {editors.map(editor => (
                                     <option key={editor.id} value={editor.user.email}>{`${editor.user.name}->${editor.user.email}`}</option>
                                 ))}
