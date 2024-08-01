@@ -5,14 +5,24 @@ const prisma = new PrismaClient();
 
 export const createJob = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { uid } = req.params;
-        console.log(req.body);
+        // const { uid } = req.params;
+        // console.log(req.params);
         const { editorId, title, status, additionalComments, ...details } = req.body;
+        const user = await prisma.user.findUnique({
+            where: {
+                id: req.user.id
+            },
+            include: {
+                Creator: true
+            }
+        })
+        // console.log("user : ",user.Creator.id);
+
         const job = await prisma.job.create({
             data: {
-                author: {
+                Creator: {
                     connect: {
-                        id: uid
+                        id: user.Creator.id
                     }
                 },
                 editor: {
@@ -34,11 +44,25 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
 
 export const getAllEditors = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const editors = await prisma.user.findMany({
+        const user = await prisma.user.findUnique({
             where: {
-                roles: "editor"
+                id: req.user.id
             },
+            include: {
+                Creator: {
+                    include: {
+                        editors: {
+                            include: {
+                                user: true
+                            }
+                        }
+                    }
+                }
+            }
         });
+
+        const editors = user?.Creator.editors;
+
         res.status(201).json(editors);
     } catch (error) {
         next(error);
@@ -106,61 +130,73 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
 
 export const getAllJobs = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { uid } = req.params;
         const user = await prisma.user.findUnique({
             where: {
-                id: uid,
+                id: req.user.id,
             },
             include: {
-                jobs: {
-                    select: {
-                        id: true,
-                        title: true,
-                        editorId: true,
-                        editor: {
-                            select: {
-                                name: true,
-                            }
+                Creator: {
+                    include: {
+                        jobs: {
+                            include: {
+                                editor: {
+                                    include: {
+                                        user: true,
+                                    },
+                                },
+                            },
                         },
-                        createdAt: true,
-                        updatedAt: true,
-                        additionalComments: true,
-                        status: true,
-                    }
+                    },
                 },
-                editorJobs: true,
+                Editor: {
+                    include: {
+                        Job: {
+                            include: {
+                                editor: {
+                                    include: {
+                                        user: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             },
+
         });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        if (user.roles === 'creator') {
-            res.status(200).json(user.jobs);
+
+        // res.status(200).json(user);
+
+        if (user.Creator !== null) {
+            res.status(200).json(user.Creator.jobs);
         }
         else {
-            res.status(200).json(user.editorJobs);
+            res.status(200).json(user.Editor?.Job);
         }
     } catch (error) {
         next(error);
     }
 }
 
-export const getJob = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const jobId = req.params.uid;
+// export const getJob = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const jobId = req.params.uid;
 
-        const job = await prisma.job.findFirst({
-            where: {
-                id: jobId,
-            },
-        });
-        if (!job) {
-            return res.status(404).send("Job doesn't exist.");
-        }
+//         const job = await prisma.job.findFirst({
+//             where: {
+//                 id: jobId,
+//             },
+//         });
+//         if (!job) {
+//             return res.status(404).send("Job doesn't exist.");
+//         }
 
-        res.status(200).json(job);
+//         res.status(200).json(job);
 
-    } catch (error) {
-        next(error);
-    }
-}
+//     } catch (error) {
+//         next(error);
+//     }
+// }

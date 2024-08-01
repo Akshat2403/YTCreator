@@ -13,8 +13,8 @@ const router = Router();
 router.post("/login", login);
 router.post("/register", register);
 router.get("/logout", logout);
-router.post("/addEditor",verifyUser ,addEditor);
-router.get('/profile/:id', profile as RequestHandler);
+router.post("/addEditor", verifyUser, addEditor);
+router.get('/profile/', verifyUser, profile as RequestHandler);
 router.get('/getAllEdtiors', getAllEdtiors as RequestHandler);
 
 export default router;

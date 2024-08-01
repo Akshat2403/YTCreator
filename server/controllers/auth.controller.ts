@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 
 export const profile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    // const { id } = req.params;
     // console.log("id");
     const user = await prisma.user.findUnique({
       where: {
-        id: id,
+        id: req.user.id,
       },
       include: {
         Creator: {
