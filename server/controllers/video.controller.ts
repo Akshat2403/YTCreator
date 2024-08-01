@@ -15,31 +15,36 @@ export const youtubeAuth = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.params;
+  console.log(req.body);
+  const { id } = req.user;
   const user = await prisma.user.findUnique({
     where: { id },
-    include: { credentials: true },
+    include: { Creator: { include: { credentials: true } } },
   });
   if (!user) {
     return next(createError(404, "User not found"));
   }
-  if (!user.credentials) {
+  if (!user.Creator) {
+    return next(createError(404, "Creator not found"));
+  }
+  if (!user.Creator.credentials) {
     return next(createError(404, "Credentials not found"));
   }
   const secret_iv = process.env.SECRET_IV ?? "default_secret_iv";
   const encryption_method = "aes-256-cbc";
 
   const cred = decryptData(
-    user.credentials.key,
+    user.Creator.credentials.key,
     req.body.secret_key,
     secret_iv,
     encryption_method
   );
+  console.log(cred.web.client_id);
 
   const oauth2Client = createOAuth2Client(
-    cred.web.clientId,
-    cred.web.clientSecret,
-    cred.web.redirectUrl
+    cred.web.client_id,
+    cred.web.client_secret,
+    "http://localhost:3000/upload"
   );
   const url = getAuthUrl(oauth2Client);
   res.send({ url });
@@ -50,14 +55,7 @@ export const uploadyoutubeVideo = async (
   res: Response,
   next: NextFunction
 ) => {
-  const {
-    clientId,
-    clientSecret,
-    redirectUrl,
-    title,
-    description,
-    // privacyStatus,
-  } = req.body;
+  const { title, description } = req.body;
 
   const user = await prisma.user.findUnique({
     where: { id },
@@ -102,9 +100,22 @@ export const uploadyoutubeVideo = async (
       //   privacyStatus
     );
     res.send(videoData);
-    
   } catch (err) {
     console.error("Error: " + err);
     next(createError(500, "Error uploading video"));
   }
+};
+export const uploadVideoEditor = async (req: Request, res: Response) => {
+  const {
+    title,
+    description,
+    category,
+    forKids,
+    thumbnail,
+    tags,
+    formats,
+    isVerified,
+    privacyStatus,
+  } = req.body;
+  
 };
