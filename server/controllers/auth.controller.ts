@@ -12,7 +12,7 @@ export const profile = async (
 ) => {
   try {
     const { id } = req.params;
-    console.log("id");
+    // console.log("id");
     const user = await prisma.user.findUnique({
       where: {
         id: id,
@@ -155,16 +155,24 @@ export const addEditor = async (
       where: { email: req.body.email },
       include: { Editor: true },
     });
+
+    const userCreator = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      include: { Creator: true },
+    });
+    console.log("user : ", user?.Editor?.id);
     if (!user) {
       next(createError(404, "User not found"));
     }
-    if (!user?.Editor) {
-      next(createError(404, "Editor not found"));
-    }
+
+    // if (!user?.Editor) {
+    //   next(createError(404, "Editor not found"));
+    // }
+
     const editor = await prisma.editor.update({
       where: { id: user.Editor.id },
       data: {
-        creator: { connect: { id: req.user.id } },
+        creator: { connect: { id: userCreator.Creator.id } }
       },
     });
 
