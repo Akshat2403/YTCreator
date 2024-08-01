@@ -24,7 +24,7 @@ type Job = {
   };
 };
 
-const JobTable: React.FC = async () => {
+const JobTable: React.FC = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [sortKey, setSortKey] = useState<keyof Job>("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -38,10 +38,12 @@ const JobTable: React.FC = async () => {
   const [status, setStatus] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [dataChanged, setDataChanged] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
   useEffect(() => {
+    axios.defaults.withCredentials = true;
     axios
-      .get("http://localhost:5000/api/job/allJobs/clxdnpkdy000010z2ftmkuu3f")
+      .get("http://localhost:5000/api/job/allJobs/")
       .then((response) => {
         // Assuming the API returns the status along with other fields
         const jobsData = response.data.map((job: any) => ({
@@ -57,8 +59,22 @@ const JobTable: React.FC = async () => {
   }, [dataChanged]);
 
   useEffect(() => {
+    const fetch = async () => {
+      // console.log("hehhe",localStorage.getItem('user')?.toString().split(',')[0].split(':')[1]);
+      axios.defaults.withCredentials = true
+      await axios.get(`http://localhost:5000/api/auth/profile`) // Adjust the endpoint as needed
+        .then(response => {
+          response.data.Creator ? setIsCreator(true) : setIsCreator(false)
+        })
+        .catch(error => console.error('Error fetching user data:', error));
+    }
+    fetch();
+  }, []);
+
+  useEffect(() => {
     const fetchEditors = async () => {
       try {
+        axios.defaults.withCredentials = true;
         const response = await axios.get(
           "http://localhost:5000/api/job/getAllEditors/"
         );
@@ -152,14 +168,14 @@ const JobTable: React.FC = async () => {
     <div className="w-full p-4 flex flex-col">
       <div className="w-full flex flex-col justify-center items-center my-4 gap-4">
         <div className="text-6xl font-bold">Jobs</div>
-        <div className="flex self-end">
+        {isCreator && (<div className="flex self-end">
           <Link href="/jobs/createJob">
             <button className="flex items-center bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
               <Image src={addIcon} alt="plus" className="w-4 h-4 mr-2" />
               New Job
             </button>
           </Link>
-        </div>
+        </div>)}
       </div>
       <table className="w-full bg-white border border-gray-200 shadow-md">
         <thead className="bg-gray-100 w-full">
@@ -174,7 +190,7 @@ const JobTable: React.FC = async () => {
               className="w-1/4 py-2 px-4 border-b cursor-pointer"
               onClick={() => sortData("authorId")}
             >
-              Creator
+              Creator/Editor
             </th>
             <th
               className="w-1/4 py-2 px-4 border-b cursor-pointer"
@@ -192,7 +208,7 @@ const JobTable: React.FC = async () => {
                 {job.title}
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
-                {job.editor.name}
+                {job.editor.user.name}
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
                 {job.status ? (
@@ -286,7 +302,7 @@ const JobTable: React.FC = async () => {
                           <option value="">Select an Editor</option>
                           {editors.map((editor) => (
                             <option key={editor.id} value={editor.id}>
-                              {editor.name} ({editor.email})
+                              {`${editor.user.name}->${editor.user.email}`}
                             </option>
                           ))}
                         </select>
@@ -385,7 +401,7 @@ const JobTable: React.FC = async () => {
                 <strong>Title: </strong> {selectedJob.title}
               </p>
               <p>
-                <strong>Editor: </strong> {selectedJob.editor.name}
+                <strong>Editor: </strong> {selectedJob.editor.user.name}
               </p>
               <p>
                 <strong>Status: </strong>{" "}

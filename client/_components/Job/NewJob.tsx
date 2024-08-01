@@ -12,12 +12,17 @@ const NewJob = () => {
     const [additionalComments, setAdditionalComments] = useState("");
     const [showSuccessPopup, setShowSuccessPopup] = useState(false);
     // const router = useRouter();
+    const [userid, setUserId] = useState('');
 
     useEffect(() => {
+        const res = JSON.parse(localStorage.getItem('user') || "");
+        console.log(res.id)
         const fetchEditors = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/job/getAllEditors/');
+                axios.defaults.withCredentials = true;
+                const response = await axios.get(`http://localhost:5000/api/job/getAllEditors`);
                 setEditors(response.data);
+                console.log(response.data)
             } catch (error) {
                 console.error('Error fetching editors:', error);
             }
@@ -27,6 +32,7 @@ const NewJob = () => {
 
 
     const handleSubmit = async (e: React.FormEvent) => {
+        const res = JSON.parse(localStorage.getItem('user') || "");
         e.preventDefault();
         const newJob = {
             title,
@@ -34,7 +40,9 @@ const NewJob = () => {
             additionalComments,
         }
         try {
-            const response = await axios.post('http://localhost:5000/api/job/createJob/clxdnpkdy000010z2ftmkuu3f', newJob);
+            // add withcredentials to send cookies
+            axios.defaults.withCredentials = true;
+            const response = await axios.post(`http://localhost:5000/api/job/createJob`, newJob);
             console.log('Job created successfully:', response.data);
             setShowSuccessPopup(true);
 
@@ -90,7 +98,7 @@ const NewJob = () => {
                                             <option value="">Select an Editor</option>
                                             {editors.map((editor) => (
                                                 <option key={editor.id} value={editor.id}>
-                                                    {editor.name} ({editor.email})
+                                                    {`${editor.user.name}->${editor.user.email}`}
                                                 </option>
                                             ))}
                                         </select>

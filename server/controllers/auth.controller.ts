@@ -11,11 +11,11 @@ export const profile = async (
   next: NextFunction
 ) => {
   try {
-    const { id } = req.params;
+    // const { id } = req.params;
     // console.log("id");
     const user = await prisma.user.findUnique({
       where: {
-        id: id,
+        id: req.user.id,
       },
       include: {
         Creator: {
