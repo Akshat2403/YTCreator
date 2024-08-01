@@ -67,6 +67,12 @@ export const uploadyoutubeVideo = async (
   if (!user.credentials) {
     return next(createError(404, "Credentials not found"));
   }
+  const Job = await prisma.job.findUnique({
+    where: { id: req.params.Jobid },
+    include: { Video: true },
+  });
+  if (!Job) return next(createError(404, "Job not found"));
+  if (!Job.Video) return next(createError(404, "Video not found"));
   const secret_iv = process.env.SECRET_IV ?? "default_secret_iv";
   const encryption_method = "aes-256-cbc";
 
@@ -83,9 +89,7 @@ export const uploadyoutubeVideo = async (
     cred.web.redirectUrl
   );
   const { code } = req.query;
-  console.log(code);
-  console.log("file------", req.file);
-  const video = req.file?.filename;
+  const video = Job.Video.url;
   try {
     const tokens = await getToken(oauth2Client, code);
     console.log(tokens);
@@ -105,7 +109,11 @@ export const uploadyoutubeVideo = async (
     next(createError(500, "Error uploading video"));
   }
 };
-export const uploadVideoEditor = async (req: Request, res: Response) => {
+export const uploadVideoEditor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const {
     title,
     description,
@@ -117,5 +125,37 @@ export const uploadVideoEditor = async (req: Request, res: Response) => {
     isVerified,
     privacyStatus,
   } = req.body;
-  
+  const { Jobid } = req.params;
+  const CreatorDetails = await prisma.creator.findFirst({
+    where: { userId: req.user.id },
+  });
+  if (!CreatorDetails) next;
+  const video = await prisma.video.create({
+    data: {
+      title,
+      description,
+      category,
+      url: req.file?.filename ?? "",
+      forKids,
+      thumbnail,
+      tags,
+      formats,
+      isVerified,
+      privacyStatus,
+      Creator: {
+        connect: { id: CreatorDetails?.id },
+      },
+    },
+  });
+  const job = await prisma.job.update({
+    where: {
+      id: Jobid,
+    },
+    data: {
+      Video: {
+        connect: { id: video.id },
+      },
+    },
+  });
+  res.status(201).json("Video uploaded successfully");
 };
