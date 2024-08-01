@@ -51,7 +51,7 @@ export const addCredentials = async (
         Creator: {
           connect: {
             id: user?.Creator?.id,
-          }
+          },
         },
       },
     });
@@ -114,7 +114,7 @@ export const updateCredentials = async (
           id: user?.Creator?.id,
         },
       },
-    })
+    });
 
     if (!credential) {
       return res.status(404).send("Credential not found.");
@@ -134,7 +134,7 @@ export const updateCredentials = async (
         id: credential.id,
       },
       data: {
-        key: credEncryptedData,  
+        key: credEncryptedData,
       },
     });
 

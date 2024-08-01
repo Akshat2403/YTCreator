@@ -5,7 +5,11 @@ import type { Request, Response, NextFunction, RequestHandler } from "express";
 import createError from "../utils/error.ts";
 const prisma = new PrismaClient();
 
-export const profile = async (req: Request, res: Response, next: NextFunction) => {
+export const profile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // const { id } = req.params;
     // console.log("id");
@@ -17,17 +21,15 @@ export const profile = async (req: Request, res: Response, next: NextFunction) =
         Creator: {
           include: {
             credentials: true,
-          }
+          },
         },
         Editor: true,
       },
     });
     // console.log(user?.name);
     res.json(user);
-  } catch (error) {
-
-  }
-}
+  } catch (error) {}
+};
 
 export const login = async (
   req: Request,
@@ -140,7 +142,7 @@ export const getAllEdtiors = async (
   } catch (err) {
     next(err);
   }
-}
+};
 
 export const addEditor = async (
   req: Request,
@@ -148,7 +150,7 @@ export const addEditor = async (
   next: NextFunction
 ) => {
   try {
-    console.log("body : ", req.body.email);
+    console.log(req);
     const user = await prisma.user.findUnique({
       where: { email: req.body.email },
       include: { Editor: true },
