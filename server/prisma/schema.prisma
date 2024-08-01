@@ -60,7 +60,7 @@ model Video {
   forKids       Boolean
   thumbnail     String
   isVerified    Boolean
-  tags          String[]
+  tags          String
   formats       String
   privacyStatus String
   createdAt     DateTime @default(now())
@@ -80,7 +80,7 @@ model Job {
   Creator            Creator  @relation(fields: [creatorId], references: [id])
   creatorId          String
   status             Boolean  @default(false)
-  Video              Video    @relation(fields: [videoId], references: [id])
-  videoId            String   @unique
+  Video              Video?    @relation(fields: [videoId], references: [id])
+  videoId            String?   @unique
   additionalComments String?
 }

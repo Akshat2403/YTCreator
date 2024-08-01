@@ -126,9 +126,11 @@ export const uploadVideoEditor = async (
     privacyStatus,
   } = req.body;
   const { Jobid } = req.params;
-  const CreatorDetails = await prisma.creator.findFirst({
-    where: { userId: req.user.id },
+  const CreatorDetails = await prisma.job.findUnique({
+    where: { id: Jobid },
+    include: { Creator: true },
   });
+
   if (!CreatorDetails) next;
   const video = await prisma.video.create({
     data: {
@@ -136,14 +138,14 @@ export const uploadVideoEditor = async (
       description,
       category,
       url: req.file?.filename ?? "",
-      forKids,
+      forKids: forKids==="true"?true:false,
       thumbnail,
       tags,
       formats,
-      isVerified,
+      isVerified:isVerified==="true"?true:false,
       privacyStatus,
       Creator: {
-        connect: { id: CreatorDetails?.id },
+        connect: { id: CreatorDetails?.Creator.id },
       },
     },
   });

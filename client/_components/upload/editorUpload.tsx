@@ -4,13 +4,11 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const FormComponent = () => {
-    const router = useRouter();
-    const params = useSearchParams();
-    console.log(params.get("code"));
-    //   const [submitting, setSubmitting] = useState(
-    //     params.get("code") ? "Upload" : "Authourize"
-    //   );
+type FormProps = {
+    jobid: string;
+};
+
+const FormComponent = ({ jobid: jobid }: FormProps) => {
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -22,31 +20,58 @@ const FormComponent = () => {
         tags: "",
         formats: "",
         privacyStatus: "",
-        secret_key: "",
+        video:null
     });
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData({
-            ...formData,
-            [name]: type === "checkbox" ? checked : value,
-        });
-    };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const response = await axios.post(
-            "http://localhost:5000/api/video/auth",
-            {
-                secret_key: formData.secret_key,
-            },
-            {
-                withCredentials: true,
+        const handleChange = (e) => {
+            const { name, value, type, checked } = e.target;
+            if (type === "checkbox") {
+                setFormData({
+                    ...formData,
+                    [name]: checked,
+                });
+            } else if (type === "file") {
+                setFormData({
+                    ...formData,
+                    video: e.target.files[0]
+                });
+            } else {
+                setFormData({
+                    ...formData,
+                    [name]: value,
+                });
             }
-        );
-        router.push(response.data.url);
-        console.log(formData);
-    };
+        };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const formdata = new FormData();
+
+        formdata.append('title', formData.title);
+        formdata.append('description', formData.description);
+        formdata.append('url', formData.url);
+        formdata.append('category', formData.category);
+        formdata.append('forKids', formData.forKids.toString());
+        formdata.append('thumbnail', formData.thumbnail);
+        formdata.append('isVerified', formData.isVerified.toString());
+        formdata.append('tags', formData.tags); // Assuming tags is an array
+        formdata.append('formats', formData.formats); // Assuming formats is an array or object
+        formdata.append('privacyStatus', formData.privacyStatus);
+        const videoFile = document.querySelector('#video');
+        formdata.append('video', formData.video);
+        console.log(formData.video)
+        try {
+            axios.defaults.withCredentials = true;
+            // axios.defaults.headers['Content-Type'] = 'multipart/form-data';
+            // axios.defaults.headers=origi
+            const response = await axios.post(`http://localhost:5000/api/video/editorUpload/${jobid}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            console.log('Video added successfully:', response.data);
+
+        } catch (error) {
+            console.error('Error creating job:', error);
+        }
+    }
 
     return (
         <>
@@ -56,8 +81,7 @@ const FormComponent = () => {
                     className="bg-white p-6 rounded shadow-md w-full max-w-lg"
                 >
                     <>
-                        <h2 className="text-2xl mb-4">Form</h2>
-
+                        <h2 className="text-2xl mb-4">Editor Upload Form</h2>
                         <div className="mb-4">
                             <label className="block text-gray-700">Title</label>
                             <input
@@ -82,9 +106,10 @@ const FormComponent = () => {
                         <div className="mb-4">
                             <label className="block text-gray-700">Video File</label>
                             <input
+                                id="video"
                                 type="file"
-                                name="url"
-                                value={formData.url}
+                                name="video"
+                                // value={formData.url}
                                 onChange={handleChange}
                                 className="w-full p-2 border rounded"
                             />

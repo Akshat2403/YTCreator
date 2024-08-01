@@ -162,7 +162,6 @@ export const getAllJobs = async (req: Request, res: Response, next: NextFunction
                     },
                 },
             },
-
         });
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
