@@ -31,9 +31,9 @@ export default function SignUpPage() {
     }
   };
   return (
-    <div className="flex h-screen flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="flex h-screen flex-col  bg-gray-100 justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-200">
+        <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-700">
           SignUp to YTCreator
         </h2>
       </div>
@@ -53,7 +53,7 @@ export default function SignUpPage() {
                 name="role"
                 onChange={(e) => setRole(e.target.value)}
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-400 shadow-sm ring-1  ring-gray-300 placeholder:text-gray-400 focus:ring-2  focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 py-1.5 text-gray-800 shadow-sm ring-1  ring-gray-300 placeholder:text-gray-400 focus:ring-2  focus:ring-indigo-600 sm:text-sm sm:leading-6"
               >
                 <option value="creator">Creator</option>
                 <option value="editor">Editor</option>
@@ -74,7 +74,7 @@ export default function SignUpPage() {
                 type="text"
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="block w-full rounded-md border-0 py-1.5 text-gray-400 shadow-sm ring-1  ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus: focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 py-2 text-gray-800 shadow-sm ring-1  ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus: focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
           </div>

@@ -3,12 +3,11 @@ import NavBar from "@/_components/NavBar/NavBar";
 import axios from "axios";
 import React, { useState } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
+import toast from "react-hot-toast";
 
 const FormComponent = () => {
   const router = useRouter();
   const params = useSearchParams();
-  const p = useParams();
-  console.log(params.get("code"));
   const [submitting, setSubmitting] = useState(
     params.get("code") ? "Upload" : "Authourize"
   );
@@ -38,31 +37,53 @@ const FormComponent = () => {
     e.preventDefault();
     // Handle form submission
     if (submitting === "Authourize") {
+      console.log("Submitting");
+
       setSubmitting("Authorizing");
-      const response = await axios.post(
-        "http://localhost:5000/api/video/auth",
-        {
-          secret_key: formData.secret_key,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      router.push(response.data.url);
+      const jobid = params.get("jobId");
+      if (!jobid) {
+        toast.error("Job not found");
+        setSubmitting("Authorize");
+        return;
+      }
+      localStorage.setItem("jobId", jobid);
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/video/auth",
+          {
+            secret_key: formData.secret_key,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        router.push(response.data.url);
+      } catch (err) {
+        console.log(err);
+        toast.error(err.response.data.message);
+      }
     } else {
-      const response = await axios.post(
-        "http://localhost:5000/api/video/upload/" + p.id,
-        {
-          ...formData,
-          code: params.get("code"),
-        },
-        {
-          withCredentials: true,
-        }
-      );
-      console.log(response.data);
+      const jobId = localStorage.getItem("jobId");
+      if (!jobId) {
+        toast.error("Job not found");
+        return;
+      }
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/video/upload/" + jobId,
+          {
+            ...formData,
+            code: params.get("code"),
+          },
+          {
+            withCredentials: true,
+          }
+        );
+        router.push("/dashboard");
+      } catch (err) {
+        toast.error(err.response.data.message);
+      }
     }
-    console.log(formData);
   };
 
   return (
