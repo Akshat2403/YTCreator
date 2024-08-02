@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import Link from "next/link";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,14 +65,14 @@ export default function LoginPage() {
               >
                 Password
               </label>
-              {/* <div className="text-sm">
-                <a
-                  href="#"
+              <div className="text-sm">
+                <Link
+                  href="/signup"
                   className="font-semibold text-indigo-600 hover:text-indigo-500"
                 >
-                  Forgot password?
-                </a>
-              </div> */}
+                  New to YTCreator
+                </Link>
+              </div>
             </div>
             <div className="mt-2">
               <input

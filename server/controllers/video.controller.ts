@@ -62,7 +62,17 @@ export const uploadyoutubeVideo = async (
   next: NextFunction
 ) => {
   try {
-    const { title, description } = req.body;
+    const {
+      title,
+      description,
+      category,
+      forKids,
+      thumbnail,
+      tags,
+      formats,
+      isVerified,
+      privacyStatus,
+    } = req.body;
 
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },

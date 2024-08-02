@@ -28,7 +28,9 @@ export const profile = async (
     });
     // console.log(user?.name);
     res.json(user);
-  } catch (error) {}
+  } catch (error) {
+    next(createError(500, err.message));
+  }
 };
 
 export const login = async (
@@ -68,7 +70,7 @@ export const login = async (
       .status(200)
       .json({ ...details });
   } catch (err) {
-    next(err);
+    next(createError(500, err.message));
   }
 };
 
@@ -140,7 +142,7 @@ export const getAllEdtiors = async (
     });
     res.status(200).json({ status: "success", data: editors });
   } catch (err) {
-    next(err);
+    next(createError(500, err.message));
   }
 };
 
@@ -172,12 +174,28 @@ export const addEditor = async (
     const editor = await prisma.editor.update({
       where: { id: user.Editor.id },
       data: {
-        creator: { connect: { id: userCreator.Creator.id } }
+        creator: { connect: { id: userCreator.Creator.id } },
       },
     });
 
     res.status(201).json({ status: "success", data: editor });
   } catch (err) {
-    next(err);
+    next(createError(500, err.message));
+  }
+};
+export const getUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user;
+    console.log(user);
+    if (!user) {
+      return next(createError(404, "User not found"));
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    next(createError(500, err.message));
   }
 };

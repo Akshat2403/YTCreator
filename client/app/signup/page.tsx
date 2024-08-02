@@ -2,8 +2,8 @@
 import { FormEventHandler, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import axios from "axios";
-// import { useRouter } from "next/router";
 import toast from "react-hot-toast";
+import Link from "next/link";
 export default function SignUpPage() {
   const router = useRouter();
   const [role, setRole] = useState("creator");
@@ -105,14 +105,14 @@ export default function SignUpPage() {
               >
                 Password
               </label>
-              {/* <div className="text-sm">
-                <a
-                  href="#"
+              <div className="text-sm">
+                <Link
+                  href="/login"
                   className="font-semibold text-indigo-600 hover:text-indigo-500"
                 >
-                  Forgot password?
-                </a>
-              </div> */}
+                  Already have an account?
+                </Link>
+              </div>
             </div>
             <div className="mt-2">
               <input
