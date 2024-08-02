@@ -1,7 +1,7 @@
 "use client";
 import NavBar from "@/_components/NavBar/NavBar";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import toast from "react-hot-toast";
 
@@ -24,6 +24,29 @@ const FormComponent = () => {
     privacyStatus: "",
     secret_key: "",
   });
+
+  useEffect(() => {
+    const fetchVideoData = async () => {
+      const jobId = localStorage.getItem("jobId");
+      if (jobId) {
+        try {
+          const response = await fetch(`http://localhost:5000/api/video/getVideoData/${jobId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setFormData(data);
+            console.log(data);
+          } else {
+            console.error("Failed to fetch video data");
+          }
+        } catch (error) {
+          console.error("Error fetching video data:", error);
+        }
+      }
+    };
+
+    fetchVideoData();
+  }, [params]);
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

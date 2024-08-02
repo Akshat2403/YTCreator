@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { encryptData } from "../utils/encryption.js";
 import type { NextFunction, Request, Response } from "express";
 import crypto from "crypto";
+import createError from "../utils/error.js";
 const prisma = new PrismaClient();
 
 export const addCredentials = async (
@@ -11,7 +12,7 @@ export const addCredentials = async (
 ) => {
   try {
     if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+      return next(createError(400, "No File Uploaded"));
     }
     const credData = req.file.buffer.toString("utf8");
     const secret_key = req.body.secret_key;
@@ -25,7 +26,7 @@ export const addCredentials = async (
     );
 
     if (!credData || !secret_key) {
-      return res.status(400).send("Invalid data.");
+      return next(createError(400, "Invalid Data"));
     }
 
     // const newCredentials = await prisma.credentials.create({
@@ -45,6 +46,10 @@ export const addCredentials = async (
       },
     });
 
+    if (!user) {
+      return next(createError(404, "User not found"));
+    }
+
     const newCredentials = await prisma.credentials.create({
       data: {
         key: credEncryptedData,
@@ -58,7 +63,7 @@ export const addCredentials = async (
     res.status(201).json("Credentials added successfully.");
     // console.log(newCredentials);
   } catch (error) {
-    next(error);
+    next(createError(500, "Error adding Credentials"));
   }
 };
 
@@ -69,7 +74,7 @@ export const updateCredentials = async (
 ) => {
   try {
     if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+      return next(createError(400, "No File Uploaded"));
     }
 
     const credData = req.file.buffer.toString("utf8");
@@ -84,7 +89,7 @@ export const updateCredentials = async (
     );
 
     if (!credData || !secret_key) {
-      return res.status(400).send("Invalid data.");
+      return next(createError(400, "Invalid Data"));
     }
 
     // const credential = await prisma.credentials.findFirst({
@@ -107,6 +112,9 @@ export const updateCredentials = async (
         Creator: true,
       },
     });
+    if (!user) {
+      return next(createError(404, "User not found"));
+    }
 
     const credential = await prisma.credentials.findFirst({
       where: {
@@ -117,7 +125,7 @@ export const updateCredentials = async (
     });
 
     if (!credential) {
-      return res.status(404).send("Credential not found.");
+      return next(createError(404, "Credential not found"));
     }
 
     // const updatedCredentials = await prisma.credentials.update({
@@ -142,6 +150,6 @@ export const updateCredentials = async (
     // console.log(updatedCredentials);
     // console.log(decryptData(updatedCredentials.key, "sad", secret_iv, ecnryption_method));
   } catch (error) {
-    next(error);
+    next(createError(500, "Error Upadting Credentials"));
   }
 };

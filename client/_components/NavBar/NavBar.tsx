@@ -11,9 +11,9 @@ const NavBar = () => {
                 <Image src={logo} alt="logo" />
             </div>
             <div className="rightNavBar">
-                <Link href="/"><div>Dashboard</div></Link>
-                <Link href="/jobs"><div>Jobs</div></Link>
-                <Link href="/Profile"><div>Login</div></Link>
+                <Link href="/dashboard"><div>Dashboard</div></Link>
+                {/* <Link href="/jobs"><div>Jobs</div></Link> */}
+                <Link href="/Profile"><div>Profile</div></Link>
             </div>
         </div>
     )

@@ -4,6 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const NewJob = () => {
     const [title, setTitle] = useState("");
@@ -24,6 +25,7 @@ const NewJob = () => {
                 setEditors(response.data);
                 console.log(response.data)
             } catch (error) {
+                toast.error(error.response.data.message);
                 console.error('Error fetching editors:', error);
             }
         }
@@ -43,10 +45,12 @@ const NewJob = () => {
             // add withcredentials to send cookies
             axios.defaults.withCredentials = true;
             const response = await axios.post(`http://localhost:5000/api/job/createJob`, newJob);
+            toast.success(response.data);
             console.log('Job created successfully:', response.data);
             setShowSuccessPopup(true);
 
         } catch (error) {
+            toast.error(error.response.data.message);
             console.error('Error creating job:', error);
         }
     }
@@ -124,7 +128,7 @@ const NewJob = () => {
                     </div>
 
                     <div className="mt-6 flex items-center justify-end gap-x-6">
-                        <Link href='/jobs' className="text-sm font-semibold leading-6 text-gray-900">Cancel</Link>
+                        <Link href='/dashboard' className="text-sm font-semibold leading-6 text-gray-900">Cancel</Link>
                         {/* <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
                             Cancel
                         </button> */}
@@ -142,7 +146,7 @@ const NewJob = () => {
                     <div className="bg-white p-6 rounded-lg shadow-lg">
                         <h2 className="text-lg font-semibold">Job Created Successfully</h2>
                         <div className="mt-4 flex justify-end gap-x-4">
-                            <Link href='/jobs' className="bg-indigo-600 px-4 py-2 rounded-md text-sm font-medium text-white">View Jobs</Link>
+                            <Link href='/dashboard' className="bg-indigo-600 px-4 py-2 rounded-md text-sm font-medium text-white">View Jobs</Link>
                         </div>
                     </div>
                 </div>

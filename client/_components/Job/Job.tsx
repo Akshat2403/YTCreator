@@ -11,6 +11,8 @@ import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
 import FormComponent from "../upload/editorUpload";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 type Job = {
   id: string;
@@ -28,6 +30,7 @@ type Job = {
 };
 
 const JobTable: React.FC = () => {
+  const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [sortKey, setSortKey] = useState<keyof Job>("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -59,6 +62,7 @@ const JobTable: React.FC = () => {
         setJobs(jobsData);
       })
       .catch((error) => {
+        toast.error(error.response.data.message);
         console.error("Error fetching jobs data:", error);
       });
   }, [dataChanged]);
@@ -71,7 +75,10 @@ const JobTable: React.FC = () => {
         .then(response => {
           response.data.Creator ? setIsCreator(true) : setIsCreator(false)
         })
-        .catch(error => console.error('Error fetching user data:', error));
+        .catch(error => {
+          toast.error(error.response.data.message);
+          console.error('Error fetching user data:', error)
+        });
     }
     fetch();
   }, []);
@@ -85,10 +92,11 @@ const JobTable: React.FC = () => {
         );
         setEditors(response.data);
       } catch (error) {
+        toast.error(error.response.data.message);
         console.error("Error fetching editors:", error);
       }
     };
-    fetchEditors();
+    isCreator && fetchEditors();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,13 +115,14 @@ const JobTable: React.FC = () => {
       console.log("Job updated successfully:", response.data);
       const updatedJob = response.data;
       console.log("Updated job:", updatedJob);
-
+      toast.success(response.data);
       setJobs((prevJobs) =>
         prevJobs.map((job) => (job.id === updatedJob.id ? updatedJob : job))
       );
       setDataChanged(!dataChanged);
       setShowSuccessPopup(true);
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error("Error creating job:", error);
     }
   };
@@ -157,14 +166,26 @@ const JobTable: React.FC = () => {
       .delete(`http://localhost:5000/api/job/deleteJob/${job.id}`)
       .then((response) => {
         console.log(response.data);
+        toast.success(response.data);
         setJobs(jobs.filter((j) => j.id !== job.id));
       })
       .catch((error) => {
+        toast.error(error.response.data.message);
         console.error("Error deleting job:", error);
       });
   };
 
   const handleUploadButton = (job: Job) => {
+    if (isCreator && job.status === 'Uploaded') {
+      router.push(`/upload?jobId=${job.id}`);
+    }
+    if (isCreator && job.status === 'Completed') {
+      toast.success('Job already completed');
+    }
+    if (isCreator && job.status === 'Pending') {
+      toast.error('Job is pending, ask your editor to upload video');
+    }
+
     setJobId(job.id);
     setShowUploadPopup(true);
   };
@@ -189,7 +210,7 @@ const JobTable: React.FC = () => {
       <div className="w-full flex flex-col justify-center items-center my-4 gap-4">
         <div className="text-6xl font-bold">Jobs</div>
         {isCreator && (<div className="flex self-end">
-          <Link href="/jobs/createJob">
+          <Link href="/dashboard/createJob">
             <button className="flex items-center bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
               <Image src={addIcon} alt="plus" className="w-4 h-4 mr-2" />
               New Job
@@ -210,7 +231,8 @@ const JobTable: React.FC = () => {
               className="w-1/4 py-2 px-4 border-b cursor-pointer"
               onClick={() => sortData("authorId")}
             >
-              Creator/Editor
+              {isCreator && "Editor"}
+              {!isCreator && "Creator"}
             </th>
             <th
               className="w-1/4 py-2 px-4 border-b cursor-pointer"
@@ -228,7 +250,8 @@ const JobTable: React.FC = () => {
                 {job.title}
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
-                {job.editor.user.name}
+                {isCreator && (job.editor.user.name)}
+                {!isCreator && (job.Creator.user.name)}
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
                 {job.status === 'Completed' ? (

@@ -176,7 +176,7 @@ export const addEditor = async (
       },
     });
 
-    res.status(201).json({ status: "success", data: editor });
+    res.status(201).json("Editor connected successfully");
   } catch (err) {
     next(err);
   }

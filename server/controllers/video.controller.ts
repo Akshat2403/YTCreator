@@ -179,3 +179,17 @@ export const uploadVideoEditor = async (
   });
   res.status(201).json("Video uploaded successfully");
 };
+
+export const getVideoData = async ( req: Request, res: Response, next: NextFunction) => {
+  const { Jobid } = req.params;
+
+  const job = await prisma.job.findUnique({
+    where: {
+      id: Jobid,
+    },
+    include: { Video: true },
+  });
+
+  if (!job?.Video) return next(createError(404, "Video not found"));
+  res.json(job.Video);
+}

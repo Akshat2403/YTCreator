@@ -3,6 +3,7 @@ import {
   uploadyoutubeVideo,
   youtubeAuth,
   uploadVideoEditor,
+  getVideoData,
 } from "../controllers/video.controller.ts";
 import upload from "../utils/upload.ts";
 import { verifyUser } from "../middlewares/verification.ts";
@@ -16,4 +17,5 @@ router.post(
   upload.single("video"),
   uploadVideoEditor
 );
+router.get("/getVideoData/:Jobid", verifyUser, getVideoData);
 export default router;

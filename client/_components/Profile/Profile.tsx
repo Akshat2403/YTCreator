@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { type } from "os";
+import toast from "react-hot-toast";
 
 type User = {
   id: string;
@@ -49,13 +50,19 @@ const Profile: React.FC = () => {
             response.data.Creator ? (setIsCreator(true), response.data.Creator.credentials ? setCredStatus(true) : setCredStatus(false)) : setIsCreator(false)
           // response.data.credentials ? setCredStatus(true) : setCredStatus(false)
         })
-        .catch(error => console.error('Error fetching user data:', error));
+        .catch(error => {
+          toast.error(error.response.data.message);
+          console.error('Error fetching user data:', error)
+        });
       await axios.get(`http://localhost:5000/api/auth/getAllEdtiors`) // Adjust the endpoint as needed
         .then(response => {
           setEditors(response.data.data)
           console.log(response.data.data)
         })
-        .catch(error => console.error('Error fetching editors:', error));
+        .catch(error => {
+          toast.error(error.response.data.message);
+          console.error('Error fetching editors:', error)
+        });
     }
     fetch();
   }, []);
@@ -65,6 +72,7 @@ const Profile: React.FC = () => {
     const res = JSON.parse(localStorage.getItem('user') || "");
     e.preventDefault();
     if (!file) {
+      toast.error("No file selected");
       console.error("No file selected");
       return;
     }
@@ -86,9 +94,11 @@ const Profile: React.FC = () => {
         },
       });
       console.log("Credentials added successfully:", response.data);
+      toast.success(response.data);
       setFile(null);
       setSecretKey("");
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error("Error saving credentials:", error);
     }
   };
@@ -111,9 +121,11 @@ const Profile: React.FC = () => {
         // },
         withCredentials: true,
       });
+      toast.success(response.data);
       console.log('Editor Connected successfully:', response.data);
       setSelectedEditor('');
     } catch (error) {
+      toast.error(error.response.data.message);
       console.error('Error saving credentials:', error);
     }
   };

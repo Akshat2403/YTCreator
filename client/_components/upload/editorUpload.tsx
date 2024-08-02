@@ -3,12 +3,15 @@ import NavBar from "@/_components/NavBar/NavBar";
 import axios from "axios";
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Router } from "next/router";
+
 
 type FormProps = {
     jobid: string;
 };
 
 const FormComponent = ({ jobid: jobid }: FormProps) => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -67,7 +70,7 @@ const FormComponent = ({ jobid: jobid }: FormProps) => {
             // axios.defaults.headers=origi
             const response = await axios.post(`http://localhost:5000/api/video/editorUpload/${jobid}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
             console.log('Video added successfully:', response.data);
-
+            window.location.reload();
         } catch (error) {
             console.error('Error creating job:', error);
         }

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import type { NextFunction, Request, Response } from "express";
+import createError from "../utils/error";
 const prisma = new PrismaClient();
 
 
@@ -16,7 +17,10 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
                 Creator: true
             }
         })
-        // console.log("user : ",user.Creator.id);
+
+        if (!user) {
+            return next(createError(404, "User not found"));
+        }
 
         const job = await prisma.job.create({
             data: {
@@ -38,7 +42,7 @@ export const createJob = async (req: Request, res: Response, next: NextFunction)
         });
         res.status(201).json("Job created successfully.");
     } catch (error) {
-        next(error);
+        next(createError(500, "Error Creating Job"));
     }
 }
 
@@ -61,11 +65,15 @@ export const getAllEditors = async (req: Request, res: Response, next: NextFunct
             }
         });
 
+        if (!user) {
+            return next(createError(404, "User not found"));
+        }
+
         const editors = user?.Creator.editors;
 
         res.status(201).json(editors);
     } catch (error) {
-        next(error);
+        next(createError(500, "Error Fetching Editors"));
     }
 }
 
@@ -79,11 +87,11 @@ export const readJob = async (req: Request, res: Response, next: NextFunction) =
             },
         });
         if (!job) {
-            return res.status(404).json({ error: 'Job not found' });
+            return next(createError(404, "Job not found"));
         }
         res.status(200).json(job);
     } catch (error) {
-        next(error);
+        next(createError(500, "Error Fetching Job"));
     }
 }
 
@@ -107,9 +115,12 @@ export const updateJob = async (req: Request, res: Response, next: NextFunction)
                 ...details,
             },
         });
+        if (!job) {
+            return next(createError(404, "Job not found"));
+        }
         res.status(200).json("Job updated successfully.");
     } catch (error) {
-        next(error);
+        next(createError(500, "Error Updating Job"));
     }
 }
 
@@ -121,9 +132,12 @@ export const deleteJob = async (req: Request, res: Response, next: NextFunction)
                 id
             },
         });
+        if (!job) {
+            return next(createError(404, "Job not found"));
+        }
         res.status(200).json("Job deleted successfully.");
     } catch (error) {
-        next(error);
+        next(createError(500, "Error Deleting Job"));
     }
 }
 
@@ -152,7 +166,7 @@ export const getAllJobs = async (req: Request, res: Response, next: NextFunction
                     include: {
                         Job: {
                             include: {
-                                editor: {
+                                Creator: {
                                     include: {
                                         user: true,
                                     },
@@ -164,9 +178,9 @@ export const getAllJobs = async (req: Request, res: Response, next: NextFunction
             },
         });
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return next(createError(404, "User not found"));;
         }
-
+        
         // res.status(200).json(user);
 
         if (user.Creator !== null) {
@@ -176,7 +190,7 @@ export const getAllJobs = async (req: Request, res: Response, next: NextFunction
             res.status(200).json(user.Editor?.Job);
         }
     } catch (error) {
-        next(error);
+        next(createError(500, "Error Fetching Jobs"));
     }
 }
 
