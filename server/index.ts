@@ -1,6 +1,7 @@
 import express, {
   Router,
   type Express,
+  type NextFunction,
   type Request,
   type Response,
 } from "express";
@@ -32,7 +33,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/credentials", credentialRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/video", videoRoutes);
-
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  const status = err.code || 500;
+  const msg = err.message || "Something went wrong";
+  return res.status(status).json({
+    status: status,
+    message: msg,
+  });
+}); 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
 });
