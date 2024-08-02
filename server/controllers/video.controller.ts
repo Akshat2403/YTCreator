@@ -58,37 +58,40 @@ export const uploadyoutubeVideo = async (
   const { title, description } = req.body;
 
   const user = await prisma.user.findUnique({
-    where: { id },
-    include: { credentials: true },
+    where: { id: req.user.id },
+    include: { Creator: { include: { credentials: true } } },
   });
   if (!user) {
     return next(createError(404, "User not found"));
   }
-  if (!user.credentials) {
+  if (!user?.Creator?.credentials) {
     return next(createError(404, "Credentials not found"));
   }
   const Job = await prisma.job.findUnique({
     where: { id: req.params.Jobid },
     include: { Video: true },
   });
+  console.log(Job);
   if (!Job) return next(createError(404, "Job not found"));
   if (!Job.Video) return next(createError(404, "Video not found"));
   const secret_iv = process.env.SECRET_IV ?? "default_secret_iv";
   const encryption_method = "aes-256-cbc";
 
   const cred = decryptData(
-    user.credentials.key,
+    user.Creator.credentials.key,
     req.body.secret_key,
     secret_iv,
     encryption_method
   );
 
   const oauth2Client = createOAuth2Client(
-    cred.web.clientId,
-    cred.web.clientSecret,
-    cred.web.redirectUrl
+    cred.web.client_id,
+    cred.web.client_secret,
+    "http://localhost:3000/upload"
   );
-  const { code } = req.query;
+
+  const { code } = req.body;
+  console.log(code);
   const video = Job.Video.url;
   try {
     const tokens = await getToken(oauth2Client, code);
@@ -138,11 +141,11 @@ export const uploadVideoEditor = async (
       description,
       category,
       url: req.file?.filename ?? "",
-      forKids: forKids==="true"?true:false,
+      forKids: forKids === "true" ? true : false,
       thumbnail,
       tags,
       formats,
-      isVerified:isVerified==="true"?true:false,
+      isVerified: isVerified === "true" ? true : false,
       privacyStatus,
       Creator: {
         connect: { id: CreatorDetails?.Creator.id },

@@ -2,11 +2,12 @@
 import NavBar from "@/_components/NavBar/NavBar";
 import axios from "axios";
 import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, useParams } from "next/navigation";
 
 const FormComponent = () => {
   const router = useRouter();
   const params = useSearchParams();
+  const p = useParams();
   console.log(params.get("code"));
   const [submitting, setSubmitting] = useState(
     params.get("code") ? "Upload" : "Authourize"
@@ -48,6 +49,18 @@ const FormComponent = () => {
         }
       );
       router.push(response.data.url);
+    } else {
+      const response = await axios.post(
+        "http://localhost:5000/api/video/upload/" + p.id,
+        {
+          ...formData,
+          code: params.get("code"),
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response.data);
     }
     console.log(formData);
   };
