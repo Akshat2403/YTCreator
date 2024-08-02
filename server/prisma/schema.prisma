@@ -79,8 +79,8 @@ model Job {
   updatedAt          DateTime @updatedAt
   Creator            Creator  @relation(fields: [creatorId], references: [id])
   creatorId          String
-  status             Boolean  @default(false)
-  Video              Video?    @relation(fields: [videoId], references: [id])
-  videoId            String?   @unique
+  status             String   @default("Pending")
+  Video              Video?   @relation(fields: [videoId], references: [id])
+  videoId            String?  @unique
   additionalComments String?
 }

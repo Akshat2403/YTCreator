@@ -5,6 +5,7 @@ import editIcon from "../../public/icons8-edit.svg";
 import deleteIcon from "../../public/icons8-delete.svg";
 import uploadIcon from "../../public/upload.png";
 import addIcon from "../../public/add.png";
+import closeIcon from "../../public/close.svg";
 import sortIcon from "../../public/icons8-sort-24.png";
 import Image from "next/image";
 import axios from "axios";
@@ -18,7 +19,7 @@ type Job = {
   editorId: string;
   createdAt: string;
   updatedAt: string;
-  status: boolean;
+  status: string;
   additionalComments?: string;
   editor?: {
     name: string;
@@ -37,7 +38,7 @@ const JobTable: React.FC = () => {
   const [editorId, setEditorId] = useState("");
   const [editors, setEditors] = useState([]);
   const [additionalComments, setAdditionalComments] = useState("");
-  const [status, setStatus] = useState(false);
+  const [status, setStatus] = useState('Pending');
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [dataChanged, setDataChanged] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
@@ -87,7 +88,7 @@ const JobTable: React.FC = () => {
         console.error("Error fetching editors:", error);
       }
     };
-    isCreator && fetchEditors();
+    fetchEditors();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -138,6 +139,16 @@ const JobTable: React.FC = () => {
     setupdate(false);
     setShowPopup(false);
     setSelectedJob(null);
+  };
+
+  const handleUpdateButton = (job: Job) => {
+    setSelectedJob(job);
+    setTitle(job.title);
+    setEditorId(job.editorId);
+    setAdditionalComments(job.additionalComments || "");
+    setStatus(job.status);
+    console.log("Updating job:", job.id);
+    setupdate(true);
   };
 
   const handleDeleteButton = (job: Job) => {
@@ -220,13 +231,17 @@ const JobTable: React.FC = () => {
                 {job.editor.user.name}
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
-                {job.status ? (
+                {job.status === 'Completed' ? (
                   <button className="bg-green-100 text-green-600 text-xs py-1 px-3 rounded-full">
-                    Complete
+                    Completed
                   </button>
-                ) : (
+                ) : job.status === 'Pending' ? (
                   <button className="bg-red-100 text-red-600 text-xs py-1 px-3 rounded-full">
                     Pending
+                  </button>
+                ) : (
+                  <button className="bg-blue-100 text-blue-600 text-xs py-1 px-3 rounded-full">
+                    Uploaded
                   </button>
                 )}
                 {/* {job.status} */}
@@ -239,12 +254,12 @@ const JobTable: React.FC = () => {
                 >
                   <Image src={viewIcon} alt="view" className="size-4" />
                 </button>
-                <button
+                {isCreator && (<button
                   className="opacity-60 py-1 px-2 rounded mr-2 hover:opacity-100"
                   onClick={() => handleUpdateButton(job)}
                 >
                   <Image src={editIcon} alt="edit" className="size-4" />
-                </button>
+                </button>)}
                 <button
                   className="opacity-60 py-1 px-2 rounded mr-2 hover:opacity-100"
                   onClick={() => handleDeleteButton(job)}
@@ -334,13 +349,15 @@ const JobTable: React.FC = () => {
                         <select
                           id="status"
                           name="status"
-                          value={status ? "true" : "false"}
-                          onChange={(e) => setStatus(e.target.value === "true")}
+                          value={status}
+                          onChange={(e) => setStatus(e.target.value)}
                           className="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         >
-                          <option value="false">Pending</option>
-                          <option value="true">Complete</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Uploaded">Uploaded</option>
                         </select>
+
                       </div>
                     </div>
                     <div className="col-span-full">
@@ -407,13 +424,22 @@ const JobTable: React.FC = () => {
           )}
         </div>
       )}
-      {showUploadPopup && (<div className="w-full p-4 flex flex-col">
-        <div className="w-full p-12 flex justify-center items-center fixed inset-0 bg-black bg-opacity-50">
-          <div className="w-1/4 bg-gray-100 p-8 border-2 border-black-500 rounded-2xl">
-            <FormComponent jobid={jobId} />
+      {showUploadPopup && (
+        <div className="w-full p-4 flex flex-col">
+          <div className="w-full h-screen p-12 flex justify-center items-center fixed inset-0 bg-black bg-opacity-50">
+            <div className="w-1/2 h-2/3 bg-gray-100 p-8 border-2 border-black-500 rounded-2xl relative">
+              <button
+                onClick={() => { setShowUploadPopup(false) }}
+                className="absolute top-4 right-4"
+              >
+                <Image width={15} src={closeIcon} alt="close" />
+              </button>
+              <FormComponent jobid={jobId} />
+            </div>
           </div>
         </div>
-      </div>)}
+      )}
+
       {showPopup && selectedJob && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/4">
@@ -427,7 +453,8 @@ const JobTable: React.FC = () => {
               </p>
               <p>
                 <strong>Status: </strong>{" "}
-                {selectedJob.status ? "Complete" : "Pending"}
+                {selectedJob.status === 'Completed' ? 'Complete' :
+                  selectedJob.status === 'Pending' ? 'Pending' : 'Uploaded'}
               </p>
               <p>
                 <strong>Additional Comments:</strong>{" "}
