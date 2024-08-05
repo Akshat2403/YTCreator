@@ -14,6 +14,7 @@ const NavBar = () => {
                 <Link href="/dashboard"><div>Dashboard</div></Link>
                 {/* <Link href="/jobs"><div>Jobs</div></Link> */}
                 <Link href="/Profile"><div>Profile</div></Link>
+                <Link href="/Profile"><div>Logout</div></Link>
             </div>
         </div>
     )

@@ -251,7 +251,7 @@ const JobTable: React.FC = () => {
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
                 {isCreator && (job.editor.user.name)}
-                {!isCreator && (job.Creator.user.name)}
+                {!isCreator && (job.Creator?.user.name)}
               </td>
               <td className="w-1/4 py-2 px-4 border-b text-center">
                 {job.status === 'Completed' ? (
